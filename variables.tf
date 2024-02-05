@@ -40,6 +40,22 @@ variable "enable_loadbalancer" {
   default     = false
 }
 
+variable "enable_ingress" {
+  description = "Set to true to enable ingress for kind cluster."
+  type        = bool
+  default     = false
+}
+
+variable "ingress_controller" {
+  description = "Select the incress controller."
+  type        = string
+  default     = "nginx"
+  validation {
+    condition     = contains(["Nginx"], var.ingress_controller)
+    error_message = "Valid values for var: ingress_controller are (Nginx)."
+  }
+}
+
 variable "enable_metrics_server" {
   description = "Set to true to install metrics server into cluster."
   type        = bool

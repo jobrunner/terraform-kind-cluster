@@ -1,3 +1,8 @@
+locals {
+  kubeadm_config_patches_nginx   = var.enable_ingress && var.ingress_controller == "Nginx" ? ["kind: InitConfiguration\nnodeRegistration:\n  kubeletExtraArgs:\n    node-labels: \"ingress-ready=true\"\n"] : []
+  kubeadm_config_patches_ingress = concat(local.kubeadm_config_patches_nginx)
+}
+
 resource "kind_cluster" "this" {
   name            = var.cluster_name
   node_image      = "${var.node_image}:v${var.kubernetes_version}"
@@ -28,7 +33,10 @@ resource "kind_cluster" "this" {
           }
         }
 
-        kubeadm_config_patches = node.value["kubeadm_config_patches"]
+        kubeadm_config_patches = concat(
+          lookup(node.value, "role", "") == "control-plan" ? local.kubeadm_config_patches_ingress : [],
+          node.value["kubeadm_config_patches"] == null ? [] : lookup(node.value, "kubeadm_config_patches", [])
+        )
       }
     }
 
