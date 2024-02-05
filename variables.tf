@@ -22,14 +22,14 @@ variable "kubernetes_version" {
 variable "nodes" {
   description = "Nodes information to create cluster with control plan and worker. Default is AIO node."
   type = list(object({
-    role                   = string
-    kubeadm_config_patches = list(string)
-    extra_port_mappings = object({
-      listen_address = string
-      container_port = string
-      host_port      = string
-      protocol       = string
-    })
+    role                   = optional(string)
+    kubeadm_config_patches = optional(list(string))
+    extra_port_mappings = optional(list(object({
+      listen_address = optional(string)
+      container_port = optional(string)
+      host_port      = optional(string)
+      protocol       = optional(string)
+    })))
   }))
   default = []
 }

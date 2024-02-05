@@ -19,12 +19,12 @@ resource "kind_cluster" "this" {
         #   container_path = null
         # }
         dynamic "extra_port_mappings" {
-          for_each = node.value["extra_port_mappings"] == null ? [] : [node.value["extra_port_mappings"]]
+          for_each = node.value["extra_port_mappings"] == null ? [] : node.value["extra_port_mappings"]
           content {
-            listen_address = extra_port_mappings.value["listen_address"]
-            container_port = extra_port_mappings.value["container_port"]
-            host_port      = extra_port_mappings.value["host_port"]
-            protocol       = extra_port_mappings.value["protocol"]
+            container_port = lookup(extra_port_mappings.value, "container_port", 0)
+            host_port      = lookup(extra_port_mappings.value, "host_port", 0)
+            listen_address = lookup(extra_port_mappings.value, "listen_address", "0.0.0.0")
+            protocol       = lookup(extra_port_mappings.value, "protocol", "TCP")
           }
         }
 
