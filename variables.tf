@@ -49,7 +49,7 @@ variable "enable_ingress" {
 variable "ingress_controller" {
   description = "Select the incress controller."
   type        = string
-  default     = "nginx"
+  default     = "Nginx"
   validation {
     condition     = contains(["Nginx"], var.ingress_controller)
     error_message = "Valid values for var: ingress_controller are (Nginx)."
