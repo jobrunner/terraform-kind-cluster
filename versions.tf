@@ -28,22 +28,17 @@ resource "time_sleep" "wait_cluster" {
   depends_on      = [kind_cluster.this]
 }
 
-data "local_file" "kube_config" {
-  filename   = "${var.cluster_name}-config"
-  depends_on = [time_sleep.wait_cluster]
-}
-
 provider "kubectl" {
-  config_path = data.local_file.kube_config.filename
+  config_path = kind_cluster.this.kubeconfig_path
 }
 
 provider "kubernetes" {
-  config_path = data.local_file.kube_config.filename
+  config_path = kind_cluster.this.kubeconfig_path
 }
 
 provider "helm" {
   kubernetes {
-    config_path = data.local_file.kube_config.filename
+    config_path = kind_cluster.this.kubeconfig_path
   }
 }
 

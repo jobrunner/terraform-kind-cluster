@@ -7,7 +7,7 @@ resource "kind_cluster" "this" {
   name            = var.cluster_name
   node_image      = "${var.node_image}:v${var.kubernetes_version}"
   wait_for_ready  = true
-  kubeconfig_path = null
+  kubeconfig_path = var.kubeconfig_path
 
   kind_config {
     kind        = "Cluster"

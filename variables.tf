@@ -79,3 +79,7 @@ variable "containerd_config_patches" {
   type        = list(string)
   default     = []
 }
+
+variable "kubeconfig_path" {
+  type = string
+}
