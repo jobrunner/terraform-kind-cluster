@@ -1,6 +1,21 @@
 locals {
   kubeadm_config_patches_nginx   = var.enable_ingress && var.ingress_controller == "Nginx" ? ["kind: InitConfiguration\nnodeRegistration:\n  kubeletExtraArgs:\n    node-labels: \"ingress-ready=true\"\n"] : []
   kubeadm_config_patches_ingress = concat(local.kubeadm_config_patches_nginx)
+  extra_port_mappings = var.enable_ingress && var.ingress_controller == "Nginx" ? [
+    {
+      container_port = 80
+      host_port      = 80
+      listen_address = "0.0.0.0"
+      protocol       = "TCP"
+    },
+    {
+      container_port = 443
+      host_port      = 443
+      listen_address = "0.0.0.0"
+      protocol       = "TCP"
+    }
+  ] : []
+
 }
 
 resource "kind_cluster" "this" {
@@ -24,7 +39,17 @@ resource "kind_cluster" "this" {
         #   container_path = null
         # }
         dynamic "extra_port_mappings" {
-          for_each = node.value["extra_port_mappings"] == null ? [] : node.value["extra_port_mappings"]
+          # for_each = node.value["extra_port_mappings"] == null ? [] : node.value["extra_port_mappings"]
+          for_each = length(
+            concat(
+              node.value["extra_port_mappings"] == null ? [] : node.value["extra_port_mappings"],
+              local.extra_port_mappings
+            )
+            ) > 0 && lookup(node.value, "role", "") == "control-plan" ? concat(
+            node.value["extra_port_mappings"] == null ? [] : node.value["extra_port_mappings"],
+            local.extra_port_mappings
+          ) : []
+
           content {
             container_port = lookup(extra_port_mappings.value, "container_port", 0)
             host_port      = lookup(extra_port_mappings.value, "host_port", 0)
